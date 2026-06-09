@@ -6,6 +6,7 @@ import com.trading.ui.pages.DashboardPage;
 import com.trading.ui.pages.CartPage;
 import com.trading.ui.pages.CheckoutPage;
 import com.trading.ui.models.User;
+import org.openqa.selenium.JavascriptExecutor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
@@ -16,6 +17,8 @@ public class PurchaseFlowTests extends BaseTest {
 
     @BeforeMethod
     public void loginBeforeTest() {
+        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear()");
+        driver.get(BASE_URL);
         User user = new User("standard_user", "secret_sauce");
         LoginPage loginPage = new LoginPage(driver);
         dashboardPage = loginPage.login(user.getUsername(), user.getPassword());

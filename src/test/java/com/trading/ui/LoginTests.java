@@ -4,10 +4,19 @@ import com.trading.base.BaseTest;
 import com.trading.ui.pages.LoginPage;
 import com.trading.ui.pages.DashboardPage;
 import com.trading.ui.models.User;
+import org.openqa.selenium.JavascriptExecutor;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class LoginTests extends BaseTest {
+
+    @BeforeMethod
+    public void navigateToLoginPage() {
+        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear()");
+        driver.get(BASE_URL);
+        System.out.println("Setup: Navigated to login page");
+    }
 
     @Test(description = "Successful login with valid credentials", groups = {"smoke"})
     public void testLoginWithValidCredentials() {

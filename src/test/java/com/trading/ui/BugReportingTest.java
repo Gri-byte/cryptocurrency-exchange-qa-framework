@@ -5,12 +5,21 @@ import com.trading.ui.pages.LoginPage;
 import com.trading.ui.pages.DashboardPage;
 import com.trading.utils.BugEvidenceCapture;
 import com.trading.utils.BugEvidenceCapture.BugEvidence;
+import org.openqa.selenium.JavascriptExecutor;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class BugReportingTest extends BaseTest {
 
     private BugEvidenceCapture evidenceCapture;
+
+    @BeforeMethod
+    public void navigateToLoginPage() {
+        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear()");
+        driver.get(BASE_URL);
+        System.out.println("Setup: Navigated to login page");
+    }
 
     @Test(description = "Example: Capture evidence when test fails", groups = {"smoke"})
     public void testLoginWithBugEvidence() {

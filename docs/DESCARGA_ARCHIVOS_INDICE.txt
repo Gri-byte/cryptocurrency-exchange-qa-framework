@@ -1,0 +1,226 @@
+# PROYECTO 1: CRYPTOCURRENCY EXCHANGE QA FRAMEWORK
+## ÍNDICE DE DESCARGAS - 16 ARCHIVOS PARA COPIAR
+
+---
+
+## ARCHIVO 0 - COMIENZA AQUI
+00_INSTRUCCIONES_SETUP.txt
+Ubicación final: NO COPIAR (es solo para referencia)
+Contenido: Guía paso a paso de cómo montar el proyecto
+
+---
+
+## ARCHIVOS 1: CONFIGURACION (1 archivo)
+
+01_pom.xml
+Ubicación final: cryptocurrency-exchange-qa-framework/pom.xml
+Descripción: Archivo de configuración de Maven con todas las dependencias
+Importante: Quita el "01_" del nombre cuando lo copies
+
+---
+
+## ARCHIVOS 2-3: CLASES BASE (2 archivos)
+
+02_BaseTest.java
+Ubicación final: src/main/java/com/trading/base/BaseTest.java
+Descripción: Clase base para todos los tests de UI (Selenium)
+
+03_APIBaseTest.java
+Ubicación final: src/main/java/com/trading/base/APIBaseTest.java
+Descripción: Clase base para todos los tests de API (REST Assured)
+
+---
+
+## ARCHIVOS 4-7: PAGE OBJECTS - UI (4 archivos)
+
+04_LoginPage.java
+Ubicación final: src/main/java/com/trading/ui/pages/LoginPage.java
+Descripción: Page Object para la página de login
+
+05_DashboardPage.java
+Ubicación final: src/main/java/com/trading/ui/pages/DashboardPage.java
+Descripción: Page Object para el dashboard/inventario
+
+06_CartPage.java
+Ubicación final: src/main/java/com/trading/ui/pages/CartPage.java
+Descripción: Page Object para el carrito de compras
+
+07_CheckoutPage.java
+Ubicación final: src/main/java/com/trading/ui/pages/CheckoutPage.java
+Descripción: Page Object para la página de checkout
+
+---
+
+## ARCHIVO 8: MODELOS (1 archivo)
+
+08_User.java
+Ubicación final: src/main/java/com/trading/ui/models/User.java
+Descripción: Modelo/POJO para representar un usuario
+
+---
+
+## ARCHIVOS 9-10: TESTS DE UI (2 archivos)
+
+09_LoginTests.java
+Ubicación final: src/test/java/com/trading/ui/LoginTests.java
+Descripción: Tests para flujo de login (4 test cases)
+
+10_PurchaseFlowTests.java
+Ubicación final: src/test/java/com/trading/ui/PurchaseFlowTests.java
+Descripción: Tests para flujo de compra (5 test cases)
+
+---
+
+## ARCHIVO 11: TESTS DE API (1 archivo)
+
+11_TradingAPITests.java
+Ubicación final: src/test/java/com/trading/api/TradingAPITests.java
+Descripción: Tests para APIs REST (7 test cases)
+
+---
+
+## ARCHIVO 12: CONFIGURACION TESTNG (1 archivo)
+
+12_testng.xml
+Ubicación final: src/test/resources/testng.xml
+Descripción: Configuración de TestNG para ejecutar tests organizados en grupos
+
+---
+
+## ARCHIVOS 13-15: GITHUB ACTIONS WORKFLOWS (3 archivos)
+
+13_ui-tests.yml
+Ubicación final: .github/workflows/ui-tests.yml
+Descripción: Workflow que corre tests de UI automáticamente en GitHub
+
+14_api-tests.yml
+Ubicación final: .github/workflows/api-tests.yml
+Descripción: Workflow que corre tests de API automáticamente en GitHub
+
+15_all-tests.yml
+Ubicación final:.github/workflows/all-tests.yml
+Descripción: Workflow que corre todos los tests automáticamente en GitHub
+
+---
+
+## ARCHIVO 16: DOCUMENTACION (1 archivo)
+
+16_README.md
+Ubicación final: cryptocurrency-exchange-qa-framework/README.md
+Descripción: Documentación profesional del proyecto (features, instalación, uso, etc)
+
+---
+
+## RESUMEN RÁPIDO DE CARPETAS
+
+Copia los archivos en estas carpetas:
+
+src/main/java/com/trading/base/
+├── 02_BaseTest.java
+└── 03_APIBaseTest.java
+
+src/main/java/com/trading/ui/pages/
+├── 04_LoginPage.java
+├── 05_DashboardPage.java
+├── 06_CartPage.java
+└── 07_CheckoutPage.java
+
+src/main/java/com/trading/ui/models/
+└── 08_User.java
+
+src/test/java/com/trading/ui/
+├── 09_LoginTests.java
+└── 10_PurchaseFlowTests.java
+
+src/test/java/com/trading/api/
+└── 11_TradingAPITests.java
+
+src/test/resources/
+└── 12_testng.xml
+
+.github/workflows/
+├── 13_ui-tests.yml
+├── 14_api-tests.yml
+└── 15_all-tests.yml
+
+Raíz del proyecto:
+├── 01_pom.xml (renombra a pom.xml)
+└── 16_README.md (renombra a README.md)
+
+---
+
+## ORDEN DE DESCARGA RECOMENDADO
+
+1. Descarga 00_INSTRUCCIONES_SETUP.txt (léelo primero)
+2. Descarga 01_pom.xml
+3. Descarga 02_BaseTest.java
+4. Descarga 03_APIBaseTest.java
+5. Descarga 04_LoginPage.java
+6. Descarga 05_DashboardPage.java
+7. Descarga 06_CartPage.java
+8. Descarga 07_CheckoutPage.java
+9. Descarga 08_User.java
+10. Descarga 09_LoginTests.java
+11. Descarga 10_PurchaseFlowTests.java
+12. Descarga 11_TradingAPITests.java
+13. Descarga 12_testng.xml
+14. Descarga 13_ui-tests.yml
+15. Descarga 14_api-tests.yml
+16. Descarga 15_all-tests.yml
+17. Descarga 16_README.md
+
+---
+
+## VERIFICAR QUE DESCARGASTE TODO
+
+Deberías tener estos 17 archivos descargados:
+
+[ ] 00_INSTRUCCIONES_SETUP.txt
+[ ] 01_pom.xml
+[ ] 02_BaseTest.java
+[ ] 03_APIBaseTest.java
+[ ] 04_LoginPage.java
+[ ] 05_DashboardPage.java
+[ ] 06_CartPage.java
+[ ] 07_CheckoutPage.java
+[ ] 08_User.java
+[ ] 09_LoginTests.java
+[ ] 10_PurchaseFlowTests.java
+[ ] 11_TradingAPITests.java
+[ ] 12_testng.xml
+[ ] 13_ui-tests.yml
+[ ] 14_api-tests.yml
+[ ] 15_all-tests.yml
+[ ] 16_README.md
+
+Total: 17 archivos
+
+---
+
+## ESTADÍSTICAS DEL PROYECTO
+
+Líneas de código (Java): ~1000
+Tests incluidos: 16 test cases
+- 4 tests de login
+- 5 tests de flujo de compra
+- 7 tests de API
+
+Cobertura:
+- UI Testing: Login, Dashboard, Cart, Checkout
+- API Testing: CRUD operations
+- Smoke tests: 9
+- Regression tests: 7
+
+---
+
+## SIGUIENTE PASO
+
+Una vez que hayas descargado todos los archivos:
+
+1. Lee: 00_INSTRUCCIONES_SETUP.txt
+2. Copia todos los archivos a sus ubicaciones correctas
+3. Ejecuta: mvn clean install
+4. Ejecuta: mvn clean test
+5. Abre reportes: target/surefire-reports/index.html
+
+¡Listo para comenzar!

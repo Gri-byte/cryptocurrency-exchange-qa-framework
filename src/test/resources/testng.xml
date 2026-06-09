@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-current.dtd">
+<suite name="Crypto Exchange QA Suite" parallel="tests" thread-count="3" verbose="2">
+
+    <test name="Smoke Tests" enabled="true">
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.trading.ui.LoginTests"/>
+            <class name="com.trading.ui.PurchaseFlowTests"/>
+            <class name="com.trading.ui.DashboardTests"/>
+            <class name="com.trading.ui.CartTests"/>
+            <class name="com.trading.ui.CheckoutTests"/>
+            <class name="com.trading.api.TradingAPITests"/>
+        </classes>
+    </test>
+
+    <test name="Regression Tests" enabled="true">
+        <groups>
+            <run>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.trading.ui.LoginTests"/>
+            <class name="com.trading.ui.PurchaseFlowTests"/>
+            <class name="com.trading.ui.DashboardTests"/>
+            <class name="com.trading.ui.CartTests"/>
+            <class name="com.trading.ui.CheckoutTests"/>
+        </classes>
+    </test>
+
+    <test name="API Tests" enabled="true">
+        <groups>
+            <run>
+                <include name="api"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.trading.api.TradingAPITests"/>
+        </classes>
+    </test>
+
+</suite>

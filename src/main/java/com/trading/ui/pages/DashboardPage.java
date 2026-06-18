@@ -94,8 +94,8 @@ public class DashboardPage {
                             By.xpath(".//button[contains(text(), 'Add to cart')]")
                     );
                     addButton.click();
-                    // Wait for React to process the add and update the cart badge
-                    wait.until(ExpectedConditions.presenceOfElementLocated(cartBadge));
+                    // Wait for React to replace the button in the DOM (staleness = re-render complete)
+                    wait.until(ExpectedConditions.stalenessOf(addButton));
                     System.out.println("Added to cart: " + productName);
                     return this;
                 }

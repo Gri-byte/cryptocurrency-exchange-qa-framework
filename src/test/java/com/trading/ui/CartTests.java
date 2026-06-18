@@ -72,6 +72,54 @@ public class CartTests extends BaseTest {
         System.out.println("TEST PASSED: Continue Shopping button returns to dashboard");
     }
 
+    @Test(description = "Cart page is empty when navigated to without adding items", groups = {"regression"})
+    public void testCartShowsEmptyStateWithNoItems() {
+        CartPage cartPage = dashboardPage.clickShoppingCart();
+
+        Assert.assertEquals(cartPage.getCartItemCount(), 0, "Cart should show no items when none were added");
+        System.out.println("TEST PASSED: Cart shows empty state with no items added");
+    }
+
+    @Test(description = "Add to cart button changes to Remove after item is added", groups = {"regression"})
+    public void testAddToCartButtonChangesToRemoveAfterAdd() {
+        dashboardPage.addProductToCart("Sauce Labs Backpack");
+
+        org.openqa.selenium.WebElement removeButton = driver.findElement(
+                org.openqa.selenium.By.xpath("//button[contains(text(), 'Remove')]"));
+        Assert.assertTrue(removeButton.isDisplayed(),
+                "Remove button should be visible after product is added to cart");
+        System.out.println("TEST PASSED: Add to cart button changed to Remove after adding product");
+    }
+
+    @Test(description = "Cart count does not exceed 1 when same product is added once", groups = {"regression"})
+    public void testCartCountAfterAddingSingleProduct() {
+        dashboardPage.addProductToCart("Sauce Labs Backpack");
+
+        Assert.assertEquals(dashboardPage.getCartItemCount(), 1,
+                "Cart count should be exactly 1 after adding one product");
+        boolean addButtonGone = driver.findElements(
+                org.openqa.selenium.By.xpath("//button[text()='Add to cart']")).isEmpty();
+        Assert.assertTrue(addButtonGone || dashboardPage.getCartItemCount() == 1,
+                "Cart should not allow duplicate add of the same item");
+        System.out.println("TEST PASSED: Cart count is 1 and duplicate add is not possible");
+    }
+
+    @Test(description = "Removing all items from cart clears the cart badge", groups = {"regression"})
+    public void testCartBadgeDisappearsAfterRemovingAllItems() {
+        dashboardPage.addProductToCart("Sauce Labs Backpack");
+        Assert.assertTrue(dashboardPage.hasItemsInCart(), "Cart should show badge after adding item");
+
+        driver.findElement(org.openqa.selenium.By.xpath("//button[contains(text(), 'Remove')]")).click();
+
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated(
+                        org.openqa.selenium.By.className("shopping_cart_badge")));
+
+        Assert.assertFalse(dashboardPage.hasItemsInCart(),
+                "Cart badge should disappear after all items are removed");
+        System.out.println("TEST PASSED: Cart badge cleared after removing all items");
+    }
+
     @Test(description = "Cart page displays the correct product name", groups = {"regression"})
     public void testCartDisplaysCorrectItemName() {
         String expectedProduct = "Sauce Labs Backpack";

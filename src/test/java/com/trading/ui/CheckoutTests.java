@@ -81,6 +81,49 @@ public class CheckoutTests extends BaseTest {
         System.out.println("TEST PASSED: Cancel checkout returns to cart page");
     }
 
+    @Test(description = "Checkout form shows error when all fields are empty", groups = {"regression"})
+    public void testCheckoutWithAllFieldsEmpty() {
+        CartPage cartPage = dashboardPage.clickShoppingCart();
+        CheckoutPage checkoutPage = cartPage.proceedToCheckout();
+
+        checkoutPage.continueCheckout();
+
+        String errorMessage = driver.findElement(By.cssSelector("[data-test='error']")).getText();
+        Assert.assertFalse(errorMessage.isEmpty(), "Error should be shown when all checkout fields are empty");
+        System.out.println("TEST PASSED: Error shown for all-empty checkout form: " + errorMessage);
+    }
+
+    @Test(description = "Cancelling checkout overview leaves the checkout flow", groups = {"regression"})
+    public void testCancelCheckoutOverviewReturnsToInventory() {
+        CartPage cartPage = dashboardPage.clickShoppingCart();
+        CheckoutPage checkoutPage = cartPage.proceedToCheckout();
+        checkoutPage.enterFirstName("John").enterLastName("Doe").enterPostalCode("12345").continueCheckout();
+
+        driver.findElement(By.id("cancel")).click();
+
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.not(
+                        org.openqa.selenium.support.ui.ExpectedConditions.urlContains("checkout-step-two")));
+
+        String url = driver.getCurrentUrl();
+        Assert.assertFalse(url.contains("checkout"),
+                "Should have left the checkout flow after cancelling, but URL was: " + url);
+        System.out.println("TEST PASSED: Cancel on checkout overview left checkout flow, navigated to: " + url);
+    }
+
+    @Test(description = "Checkout does not proceed with only postal code entered", groups = {"regression"})
+    public void testCheckoutWithOnlyPostalCode() {
+        CartPage cartPage = dashboardPage.clickShoppingCart();
+        CheckoutPage checkoutPage = cartPage.proceedToCheckout();
+
+        checkoutPage.enterPostalCode("12345").continueCheckout();
+
+        String errorMessage = driver.findElement(By.cssSelector("[data-test='error']")).getText();
+        Assert.assertTrue(errorMessage.contains("First Name"),
+                "Error should indicate First Name is required when only postal code is provided");
+        System.out.println("TEST PASSED: Error shown when only postal code is entered: " + errorMessage);
+    }
+
     @Test(description = "Completed checkout displays order confirmation message", groups = {"smoke"})
     public void testCheckoutCompletionMessage() {
         CartPage cartPage = dashboardPage.clickShoppingCart();

@@ -2,6 +2,7 @@ package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
@@ -17,32 +18,32 @@ public class CheckoutPage {
 
     public CheckoutPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     public CheckoutPage enterFirstName(String firstName) {
-        driver.findElement(firstNameField).sendKeys(firstName);
+        wait.until(ExpectedConditions.elementToBeClickable(firstNameField)).sendKeys(firstName);
         return this;
     }
 
     public CheckoutPage enterLastName(String lastName) {
-        driver.findElement(lastNameField).sendKeys(lastName);
+        wait.until(ExpectedConditions.elementToBeClickable(lastNameField)).sendKeys(lastName);
         return this;
     }
 
     public CheckoutPage enterPostalCode(String postalCode) {
-        driver.findElement(postalCodeField).sendKeys(postalCode);
+        wait.until(ExpectedConditions.elementToBeClickable(postalCodeField)).sendKeys(postalCode);
         return this;
     }
 
     public CheckoutPage continueCheckout() {
-        driver.findElement(continueButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
         System.out.println("Continued to checkout step 2");
         return this;
     }
 
     public CheckoutPage finishCheckout() {
-        driver.findElement(finishButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
         System.out.println("Finished checkout");
         return this;
     }

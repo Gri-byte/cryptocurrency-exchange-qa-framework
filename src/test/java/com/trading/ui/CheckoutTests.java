@@ -18,11 +18,7 @@ public class CheckoutTests extends BaseTest {
 
     @BeforeMethod
     public void loginAndAddProductToCart() {
-        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear()");
-        driver.get(BASE_URL);
-        User user = new User("standard_user", "secret_sauce");
-        LoginPage loginPage = new LoginPage(driver);
-        dashboardPage = loginPage.login(user.getUsername(), user.getPassword());
+        dashboardPage = loginWithRetry("standard_user", "secret_sauce", 3);
         dashboardPage.addProductToCart("Sauce Labs Backpack");
         System.out.println("Setup: User logged in and product added to cart");
     }

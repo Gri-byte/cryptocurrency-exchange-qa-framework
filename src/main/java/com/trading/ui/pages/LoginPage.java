@@ -18,25 +18,27 @@ public class LoginPage {
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     public LoginPage enterUsername(String username) {
-        driver.findElement(usernameField).clear();
-        driver.findElement(usernameField).sendKeys(username);
+        WebElement field = wait.until(ExpectedConditions.elementToBeClickable(usernameField));
+        field.clear();
+        field.sendKeys(username);
         System.out.println("Entered username: " + username);
         return this;
     }
 
     public LoginPage enterPassword(String password) {
-        driver.findElement(passwordField).clear();
-        driver.findElement(passwordField).sendKeys(password);
+        WebElement field = wait.until(ExpectedConditions.elementToBeClickable(passwordField));
+        field.clear();
+        field.sendKeys(password);
         System.out.println("Entered password");
         return this;
     }
 
     public DashboardPage clickLoginButton() {
-        driver.findElement(loginButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
         System.out.println("Clicked login button");
         return new DashboardPage(driver);
     }

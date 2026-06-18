@@ -16,8 +16,7 @@ public class BugReportingTest extends BaseTest {
 
     @BeforeMethod
     public void navigateToLoginPage() {
-        ((JavascriptExecutor) driver).executeScript("window.localStorage.clear()");
-        driver.get(BASE_URL);
+        resetToLoginPage();
         System.out.println("Setup: Navigated to login page");
     }
 

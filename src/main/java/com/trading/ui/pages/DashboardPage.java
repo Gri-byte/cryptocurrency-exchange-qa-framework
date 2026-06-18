@@ -23,7 +23,7 @@ public class DashboardPage {
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     /**
@@ -37,7 +37,7 @@ public class DashboardPage {
             );
             return inventory.isDisplayed();
         } catch (Exception e) {
-            System.out.println("Dashboard not displayed: " + e.getMessage());
+            System.out.println("Dashboard not displayed. URL: " + driver.getCurrentUrl() + " | " + e.getMessage());
             return false;
         }
     }
@@ -83,18 +83,19 @@ public class DashboardPage {
      */
     public DashboardPage addProductToCart(String productName) {
         try {
-            // Obtener todos los productos
+            wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer));
             List<WebElement> products = driver.findElements(inventoryItems);
 
             for (WebElement product : products) {
                 WebElement name = product.findElement(productNames);
 
                 if (name.getText().equals(productName)) {
-                    // Encontró el producto, buscar el botón de agregar
                     WebElement addButton = product.findElement(
                             By.xpath(".//button[contains(text(), 'Add to cart')]")
                     );
                     addButton.click();
+                    // Wait for React to process the add and update the cart badge
+                    wait.until(ExpectedConditions.presenceOfElementLocated(cartBadge));
                     System.out.println("Added to cart: " + productName);
                     return this;
                 }

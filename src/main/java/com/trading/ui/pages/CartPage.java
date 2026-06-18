@@ -2,6 +2,7 @@ package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
@@ -15,23 +16,25 @@ public class CartPage {
 
     public CartPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     public boolean isCartDisplayed() {
         try {
-            return driver.findElement(cartContainer).isDisplayed();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(cartContainer));
+            return true;
         } catch (Exception e) {
             return false;
         }
     }
 
     public int getCartItemCount() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(cartContainer));
         return driver.findElements(cartItems).size();
     }
 
     public CheckoutPage proceedToCheckout() {
-        driver.findElement(checkoutButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(checkoutButton)).click();
         System.out.println("Proceeded to checkout");
         return new CheckoutPage(driver);
     }

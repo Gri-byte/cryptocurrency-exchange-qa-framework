@@ -25,11 +25,15 @@ jobs:
 
     - name: Setup Chrome
       uses: browser-actions/setup-chrome@v1
+      id: setup-chrome
       with:
         chrome-version: stable
 
     - name: Run UI Tests (headless)
       run: mvn clean test -Dgroups=ui,smoke -Dheadless=true
+      env:
+        SE_CHROME: ${{ steps.setup-chrome.outputs.chrome-path }}
+        SE_CHROME_DRIVER: ${{ steps.setup-chrome.outputs.chromedriver-path }}
 
     - name: Generate Allure report
       if: always()

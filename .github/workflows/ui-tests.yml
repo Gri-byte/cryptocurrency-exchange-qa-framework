@@ -30,17 +30,23 @@ jobs:
 
     - name: Locate Chrome binaries
       run: |
-        CHROME=$(which google-chrome || which google-chrome-stable || which chromium || which chromium-browser)
-        CHROMEDRIVER=$(which chromedriver)
+        CHROME=$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || which chromium-browser 2>/dev/null || which chromium 2>/dev/null || true)
+        CHROMEDRIVER=$(which chromedriver 2>/dev/null || true)
         echo "CHROME_BIN=$CHROME" >> $GITHUB_ENV
         echo "CHROMEDRIVER_BIN=$CHROMEDRIVER" >> $GITHUB_ENV
-        echo "Chrome: $CHROME ($($CHROME --version))"
-        echo "ChromeDriver: $CHROMEDRIVER ($($CHROMEDRIVER --version))"
+        echo "Chrome:      ${CHROME:-not found}"
+        [ -n "$CHROME" ] && "$CHROME" --version || true
+        echo "ChromeDriver: ${CHROMEDRIVER:-not found}"
+        [ -n "$CHROMEDRIVER" ] && "$CHROMEDRIVER" --version || true
 
     - name: Run UI Tests (headless)
       run: |
-        mvn clean test -Dgroups=ui,smoke -Dheadless=true \
-          -Dwebdriver.chrome.driver="$CHROMEDRIVER_BIN" \
+        DRIVER_ARG=""
+        [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARG="-Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
+        mvn clean test --no-transfer-progress \
+          -DexcludedGroups=api \
+          -Dheadless=true \
+          $DRIVER_ARG \
           -Dchrome.binary="$CHROME_BIN"
 
     - name: Generate Allure report

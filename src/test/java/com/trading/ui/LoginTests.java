@@ -293,6 +293,7 @@ public class LoginTests extends BaseTest {
         sleep(STEP_PAUSE_MS);
     }
 
+
     @Test(description = "Login with performance_glitch_user succeeds", groups = {"regression"})
     public void testLoginWithPerformanceGlitchUser() {
         System.out.println(">>> INICIO: testLoginWithPerformanceGlitchUser");

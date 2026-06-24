@@ -25,15 +25,23 @@ jobs:
 
     - name: Setup Chrome
       uses: browser-actions/setup-chrome@v1
-      id: setup-chrome
       with:
         chrome-version: stable
 
+    - name: Locate Chrome binaries
+      run: |
+        CHROME=$(which google-chrome || which google-chrome-stable || which chromium || which chromium-browser)
+        CHROMEDRIVER=$(which chromedriver)
+        echo "CHROME_BIN=$CHROME" >> $GITHUB_ENV
+        echo "CHROMEDRIVER_BIN=$CHROMEDRIVER" >> $GITHUB_ENV
+        echo "Chrome: $CHROME ($($CHROME --version))"
+        echo "ChromeDriver: $CHROMEDRIVER ($($CHROMEDRIVER --version))"
+
     - name: Run UI Tests (headless)
-      run: mvn clean test -Dgroups=ui,smoke -Dheadless=true
-      env:
-        SE_CHROME: ${{ steps.setup-chrome.outputs.chrome-path }}
-        SE_CHROME_DRIVER: ${{ steps.setup-chrome.outputs.chromedriver-path }}
+      run: |
+        mvn clean test -Dgroups=ui,smoke -Dheadless=true \
+          -Dwebdriver.chrome.driver="$CHROMEDRIVER_BIN" \
+          -Dchrome.binary="$CHROME_BIN"
 
     - name: Generate Allure report
       if: always()

@@ -39,8 +39,12 @@ public abstract class BaseTest {
                 driver = new FirefoxDriver();
                 break;
             default:
-                // Selenium Manager (bundled with Selenium 4.6+) handles ChromeDriver automatically
                 ChromeOptions options = new ChromeOptions();
+                // Allow CI to supply the Chrome binary path via -Dchrome.binary
+                String chromeBinary = System.getProperty("chrome.binary");
+                if (chromeBinary != null && !chromeBinary.isEmpty()) {
+                    options.setBinary(chromeBinary);
+                }
                 Map<String, Object> prefs = new HashMap<>();
                 prefs.put("credentials_enable_service", false);
                 prefs.put("profile.password_manager_enabled", false);

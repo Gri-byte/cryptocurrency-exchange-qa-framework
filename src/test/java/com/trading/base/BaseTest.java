@@ -32,6 +32,7 @@ public abstract class BaseTest {
     }
 
     private void initializeDriver() {
+        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"));
         switch (BROWSER) {
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();
@@ -45,6 +46,13 @@ public abstract class BaseTest {
                 prefs.put("profile.password_manager_enabled", false);
                 options.setExperimentalOption("prefs", prefs);
                 options.addArguments("--disable-features=PasswordManagerEnabled");
+                if (headless) {
+                    options.addArguments("--headless=new");
+                    options.addArguments("--no-sandbox");
+                    options.addArguments("--disable-dev-shm-usage");
+                    options.addArguments("--disable-gpu");
+                    options.addArguments("--window-size=1920,1080");
+                }
                 driver = new ChromeDriver(options);
         }
     }

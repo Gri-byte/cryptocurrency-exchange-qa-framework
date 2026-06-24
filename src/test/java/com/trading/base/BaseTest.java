@@ -33,6 +33,12 @@ public abstract class BaseTest {
 
     private void initializeDriver() {
         boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"));
+        String chromeBinary   = System.getProperty("chrome.binary");
+        String chromeDriver   = System.getProperty("webdriver.chrome.driver");
+        System.out.println("[BaseTest] headless=" + headless);
+        System.out.println("[BaseTest] chrome.binary=" + chromeBinary);
+        System.out.println("[BaseTest] webdriver.chrome.driver=" + chromeDriver);
+
         switch (BROWSER) {
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();
@@ -40,9 +46,8 @@ public abstract class BaseTest {
                 break;
             default:
                 ChromeOptions options = new ChromeOptions();
-                // Allow CI to supply the Chrome binary path via -Dchrome.binary
-                String chromeBinary = System.getProperty("chrome.binary");
                 if (chromeBinary != null && !chromeBinary.isEmpty()) {
+                    System.out.println("[BaseTest] Setting Chrome binary: " + chromeBinary);
                     options.setBinary(chromeBinary);
                 }
                 Map<String, Object> prefs = new HashMap<>();
@@ -57,7 +62,16 @@ public abstract class BaseTest {
                     options.addArguments("--disable-gpu");
                     options.addArguments("--window-size=1920,1080");
                 }
-                driver = new ChromeDriver(options);
+                System.out.println("[BaseTest] ChromeOptions args: " + options.asMap());
+                try {
+                    driver = new ChromeDriver(options);
+                    System.out.println("[BaseTest] ChromeDriver created successfully");
+                } catch (Exception e) {
+                    System.err.println("[BaseTest] FAILED to create ChromeDriver: "
+                            + e.getClass().getName() + ": " + e.getMessage());
+                    e.printStackTrace();
+                    throw e;
+                }
         }
     }
 

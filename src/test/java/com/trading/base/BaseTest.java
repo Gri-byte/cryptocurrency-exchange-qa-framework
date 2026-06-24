@@ -39,7 +39,7 @@ public abstract class BaseTest {
                 driver = new FirefoxDriver();
                 break;
             default:
-                WebDriverManager.chromedriver().setup();
+                // Selenium Manager (bundled with Selenium 4.6+) handles ChromeDriver automatically
                 ChromeOptions options = new ChromeOptions();
                 Map<String, Object> prefs = new HashMap<>();
                 prefs.put("credentials_enable_service", false);

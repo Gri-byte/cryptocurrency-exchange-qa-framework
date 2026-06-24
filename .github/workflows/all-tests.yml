@@ -26,6 +26,11 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: stable
+
     - name: Run smoke tests (fast gate)
       run: mvn clean test -Dgroups=smoke -Dheadless=true
 
@@ -45,6 +50,11 @@ jobs:
         java-version: 17
         distribution: 'temurin'
         cache: maven
+
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: stable
 
     - name: Run full test suite (excluding smoke — already passed)
       run: mvn clean test -DexcludedGroups=smoke -Dheadless=true

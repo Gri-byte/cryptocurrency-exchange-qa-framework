@@ -27,31 +27,30 @@ jobs:
         cache: maven
 
     - name: Setup Chrome
+      id: setup-chrome
       uses: browser-actions/setup-chrome@v1
       with:
         chrome-version: stable
 
-    - name: Locate Chrome binaries
+    - name: Set Chrome paths
       run: |
-        CHROME=$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || which chromium-browser 2>/dev/null || which chromium 2>/dev/null || true)
-        CHROMEDRIVER=$(which chromedriver 2>/dev/null || true)
+        CHROME="${{ steps.setup-chrome.outputs.chrome-path }}"
+        CHROMEDRIVER="${{ steps.setup-chrome.outputs.chromedriver-path }}"
+        [ -z "$CHROME" ]       && CHROME=$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || which chromium-browser 2>/dev/null || which chromium 2>/dev/null || true)
+        [ -z "$CHROMEDRIVER" ] && CHROMEDRIVER=$(which chromedriver 2>/dev/null || true)
         echo "CHROME_BIN=$CHROME" >> $GITHUB_ENV
         echo "CHROMEDRIVER_BIN=$CHROMEDRIVER" >> $GITHUB_ENV
-        echo "Chrome:      ${CHROME:-not found}"
-        [ -n "$CHROME" ] && "$CHROME" --version || true
+        echo "Chrome:       ${CHROME:-not found}"
+        [ -n "$CHROME" ]       && "$CHROME" --version       || true
         echo "ChromeDriver: ${CHROMEDRIVER:-not found}"
         [ -n "$CHROMEDRIVER" ] && "$CHROMEDRIVER" --version || true
 
     - name: Run smoke tests (fast gate)
       run: |
-        DRIVER_ARG=""
-        [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARG="-Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
-        mvn clean test --no-transfer-progress \
-          -Dgroups=smoke \
-          -DexcludedGroups=api \
-          -Dheadless=true \
-          $DRIVER_ARG \
-          -Dchrome.binary="$CHROME_BIN"
+        DRIVER_ARGS="-Dheadless=true -Dgroups=smoke -DexcludedGroups=api"
+        [ -n "$CHROME_BIN" ]       && DRIVER_ARGS="$DRIVER_ARGS -Dchrome.binary=$CHROME_BIN"
+        [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARGS="$DRIVER_ARGS -Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
+        mvn clean test --no-transfer-progress $DRIVER_ARGS
 
     - name: Upload surefire results (on failure)
       if: failure()
@@ -79,30 +78,30 @@ jobs:
         cache: maven
 
     - name: Setup Chrome
+      id: setup-chrome
       uses: browser-actions/setup-chrome@v1
       with:
         chrome-version: stable
 
-    - name: Locate Chrome binaries
+    - name: Set Chrome paths
       run: |
-        CHROME=$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || which chromium-browser 2>/dev/null || which chromium 2>/dev/null || true)
-        CHROMEDRIVER=$(which chromedriver 2>/dev/null || true)
+        CHROME="${{ steps.setup-chrome.outputs.chrome-path }}"
+        CHROMEDRIVER="${{ steps.setup-chrome.outputs.chromedriver-path }}"
+        [ -z "$CHROME" ]       && CHROME=$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || which chromium-browser 2>/dev/null || which chromium 2>/dev/null || true)
+        [ -z "$CHROMEDRIVER" ] && CHROMEDRIVER=$(which chromedriver 2>/dev/null || true)
         echo "CHROME_BIN=$CHROME" >> $GITHUB_ENV
         echo "CHROMEDRIVER_BIN=$CHROMEDRIVER" >> $GITHUB_ENV
-        echo "Chrome:      ${CHROME:-not found}"
-        [ -n "$CHROME" ] && "$CHROME" --version || true
+        echo "Chrome:       ${CHROME:-not found}"
+        [ -n "$CHROME" ]       && "$CHROME" --version       || true
         echo "ChromeDriver: ${CHROMEDRIVER:-not found}"
         [ -n "$CHROMEDRIVER" ] && "$CHROMEDRIVER" --version || true
 
     - name: Run full test suite (excluding smoke — already passed)
       run: |
-        DRIVER_ARG=""
-        [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARG="-Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
-        mvn clean test --no-transfer-progress \
-          -DexcludedGroups=smoke \
-          -Dheadless=true \
-          $DRIVER_ARG \
-          -Dchrome.binary="$CHROME_BIN"
+        DRIVER_ARGS="-Dheadless=true -DexcludedGroups=smoke"
+        [ -n "$CHROME_BIN" ]       && DRIVER_ARGS="$DRIVER_ARGS -Dchrome.binary=$CHROME_BIN"
+        [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARGS="$DRIVER_ARGS -Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
+        mvn clean test --no-transfer-progress $DRIVER_ARGS
 
     - name: Generate Allure report
       if: always()

@@ -94,8 +94,10 @@ public class DashboardPage {
                             By.xpath(".//button[contains(text(), 'Add to cart')]")
                     );
                     addButton.click();
-                    // Wait for React to replace the button in the DOM (staleness = re-render complete)
-                    wait.until(ExpectedConditions.stalenessOf(addButton));
+                    // SauceDemo mutates the button text in-place (Add to cart → Remove) without
+                    // replacing the element, so stalenessOf never fires. Poll for the Remove button.
+                    By removeLocator = By.xpath(".//button[contains(text(),'Remove')]");
+                    wait.until(driver -> !product.findElements(removeLocator).isEmpty());
                     System.out.println("Added to cart: " + productName);
                     return this;
                 }

@@ -29,6 +29,44 @@ jobs:
       with:
         chrome-version: stable
 
+    - name: Install matching ChromeDriver
+      run: |
+        CHROME="${{ steps.setup-chrome.outputs.chrome-path }}"
+        if [ -z "$CHROME" ]; then
+          CHROME=$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null \
+                   || which chromium-browser 2>/dev/null || which chromium 2>/dev/null || true)
+        fi
+        if [ -z "$CHROME" ]; then echo "No Chrome binary found; cannot install chromedriver" >&2; exit 1; fi
+
+        CHROME_VER=$("$CHROME" --version | grep -oP '[\d.]+' | head -1)
+        CHROME_MAJOR=$(echo "$CHROME_VER" | cut -d. -f1)
+        echo "Chrome $CHROME_VER (major $CHROME_MAJOR)"
+
+        DRIVER_URL=$(curl -fsSL \
+          "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json" | \
+          python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        ver, maj = '$CHROME_VER', '$CHROME_MAJOR'
+        match = next((v for v in data['versions'] if v['version'] == ver), None)
+        if not match:
+            match = next((v for v in reversed(data['versions']) if v['version'].split('.')[0] == maj), None)
+        if match:
+            for d in match.get('downloads', {}).get('chromedriver', []):
+                if d['platform'] == 'linux64':
+                    print(d['url']); break
+        ")
+        if [ -z "$DRIVER_URL" ]; then echo "ChromeDriver URL not found for Chrome $CHROME_VER" >&2; exit 1; fi
+
+        echo "Downloading ChromeDriver from: $DRIVER_URL"
+        curl -fsSL "$DRIVER_URL" -o /tmp/chromedriver.zip
+        unzip -q /tmp/chromedriver.zip -d /tmp/cdt
+        DRIVER=$(find /tmp/cdt -name chromedriver -type f | head -1)
+        chmod +x "$DRIVER"
+        sudo mv "$DRIVER" /usr/local/bin/chromedriver
+        echo "CHROMEDRIVER_BIN=/usr/local/bin/chromedriver" >> $GITHUB_ENV
+        chromedriver --version
+
     - name: Set Chrome paths
       run: |
         CHROME="${{ steps.setup-chrome.outputs.chrome-path }}"

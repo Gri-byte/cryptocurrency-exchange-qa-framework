@@ -5,7 +5,6 @@ import com.trading.ui.pages.LoginPage;
 import com.trading.ui.pages.DashboardPage;
 import com.trading.utils.BugEvidenceCapture;
 import com.trading.utils.BugEvidenceCapture.BugEvidence;
-import org.openqa.selenium.JavascriptExecutor;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -61,19 +60,18 @@ public class BugReportingTest extends BaseTest {
         try {
             LoginPage loginPage = new LoginPage(driver);
 
-            // Intentar login con caracteres especiales
+            // Attempt login with an invalid password containing special characters
             loginPage.enterUsername("standard_user");
             loginPage.enterPassword("secret_sauce!@#$");
             DashboardPage dashboardPage = loginPage.clickLoginButton();
 
-            // Esperar un poco para que la página cargue
-            Thread.sleep(3000);
+            // Invalid credentials should be rejected: error shown, dashboard not reached
+            Assert.assertTrue(loginPage.isErrorDisplayed(),
+                    "An error message should be displayed for an invalid password");
+            Assert.assertFalse(dashboardPage.isDashboardDisplayed(),
+                    "Dashboard should NOT be displayed after failed login");
 
-            // Si no llega al dashboard, capturar bug
-            Assert.assertTrue(dashboardPage.isDashboardDisplayed(),
-                    "Dashboard should be displayed even with special chars in password");
-
-            System.out.println("TEST PASSED: Login works with special characters");
+            System.out.println("TEST PASSED: Login correctly rejected special-character password");
 
         } catch (AssertionError e) {
             // Capturar evidencia de bug

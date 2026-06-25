@@ -87,6 +87,30 @@ jobs:
         [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARGS="$DRIVER_ARGS -Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
         mvn clean test --no-transfer-progress $DRIVER_ARGS
 
+    - name: Print failed test details
+      if: failure()
+      run: |
+        echo "===== FAILED TESTS ====="
+        find target/surefire-reports -name "TEST-*.xml" | xargs grep -l 'failures="[^0]"\|errors="[^0]"' 2>/dev/null | while read f; do
+          echo "--- $f ---"
+          python3 - "$f" <<'EOF'
+        import sys, xml.etree.ElementTree as ET
+        tree = ET.parse(sys.argv[1])
+        for tc in tree.findall('testcase'):
+            fail = tc.find('failure') or tc.find('error')
+            if fail is not None:
+                print(f"FAILED: {tc.get('classname')}.{tc.get('name')}")
+                print(f"  {fail.get('message','')}")
+                print(f"  {(fail.text or '').strip()[:800]}")
+                print()
+        EOF
+        done
+        echo "===== STDOUT LOGS ====="
+        find target/surefire-reports -name "*.txt" | xargs grep -l "FAILED\|Exception\|Error" 2>/dev/null | head -5 | while read f; do
+          echo "--- $f ---"
+          tail -100 "$f"
+        done
+
     - name: Generate Allure report
       if: always()
       run: mvn allure:report --no-transfer-progress

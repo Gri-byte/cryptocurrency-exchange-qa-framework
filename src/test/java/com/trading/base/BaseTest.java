@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BaseTest {
+public class BaseTest {
     protected WebDriver driver;
     protected WebDriverWait wait;
     protected static final String BASE_URL = "https://www.saucedemo.com";
@@ -33,8 +33,8 @@ public abstract class BaseTest {
 
     private void initializeDriver() {
         boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"));
-        String chromeBinary   = System.getProperty("chrome.binary");
-        String chromeDriver   = System.getProperty("webdriver.chrome.driver");
+        String chromeBinary = System.getProperty("chrome.binary");
+        String chromeDriver = System.getProperty("webdriver.chrome.driver");
         System.out.println("[BaseTest] headless=" + headless);
         System.out.println("[BaseTest] chrome.binary=" + chromeBinary);
         System.out.println("[BaseTest] webdriver.chrome.driver=" + chromeDriver);
@@ -45,6 +45,7 @@ public abstract class BaseTest {
                 driver = new FirefoxDriver();
                 break;
             default:
+                WebDriverManager.chromedriver().setup();
                 ChromeOptions options = new ChromeOptions();
                 if (chromeBinary != null && !chromeBinary.isEmpty()) {
                     System.out.println("[BaseTest] Setting Chrome binary: " + chromeBinary);

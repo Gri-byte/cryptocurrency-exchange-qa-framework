@@ -103,14 +103,19 @@ public class BaseTest {
      * click triggers a native form submit instead of React's handler.
      */
     protected DashboardPage loginWithRetry(String username, String password, int maxAttempts) {
-        DashboardPage dashboardPage = null;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            resetToLoginPage();
-            dashboardPage = new LoginPage(driver).login(username, password);
-            if (dashboardPage.isDashboardDisplayed()) {
-                return dashboardPage;
+            try {
+                resetToLoginPage();
+                DashboardPage dashboardPage = new LoginPage(driver).login(username, password);
+                if (dashboardPage.isDashboardDisplayed()) {
+                    return dashboardPage;
+                }
+                System.out.println("Login attempt " + attempt + "/" + maxAttempts
+                        + " failed (URL: " + driver.getCurrentUrl() + "), retrying...");
+            } catch (Exception e) {
+                System.out.println("Login attempt " + attempt + "/" + maxAttempts + " threw "
+                        + e.getClass().getSimpleName() + ": " + e.getMessage() + ", retrying...");
             }
-            System.out.println("Login attempt " + attempt + " failed (URL: " + driver.getCurrentUrl() + "), retrying...");
         }
         throw new RuntimeException("Dashboard not displayed after " + maxAttempts + " login attempts. URL: " + driver.getCurrentUrl());
     }

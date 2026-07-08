@@ -1,6 +1,7 @@
 package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -37,15 +38,43 @@ public class CheckoutPage {
     }
 
     public CheckoutPage continueCheckout() {
-        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
-        System.out.println("Continued to checkout step 2");
-        return this;
+        final int maxAttempts = 3;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
+                System.out.println("Continued to checkout step 2");
+                return this;
+            } catch (TimeoutException e) {
+                System.out.println("Attempt " + attempt + "/" + maxAttempts
+                        + " timed out clicking continue button: " + e.getMessage());
+                if (attempt == maxAttempts) {
+                    throw new RuntimeException("Failed to click continue button after " + maxAttempts + " attempts", e);
+                }
+            }
+        }
+
+        throw new RuntimeException("Failed to click continue button after " + maxAttempts + " attempts");
     }
 
     public CheckoutPage finishCheckout() {
-        wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
-        System.out.println("Finished checkout");
-        return this;
+        final int maxAttempts = 3;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
+                System.out.println("Finished checkout");
+                return this;
+            } catch (TimeoutException e) {
+                System.out.println("Attempt " + attempt + "/" + maxAttempts
+                        + " timed out clicking finish button: " + e.getMessage());
+                if (attempt == maxAttempts) {
+                    throw new RuntimeException("Failed to click finish button after " + maxAttempts + " attempts", e);
+                }
+            }
+        }
+
+        throw new RuntimeException("Failed to click finish button after " + maxAttempts + " attempts");
     }
 
     public boolean isCheckoutComplete() {

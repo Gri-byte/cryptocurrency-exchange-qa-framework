@@ -1,6 +1,7 @@
 package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -34,8 +35,22 @@ public class CartPage {
     }
 
     public CheckoutPage proceedToCheckout() {
-        wait.until(ExpectedConditions.elementToBeClickable(checkoutButton)).click();
-        System.out.println("Proceeded to checkout");
-        return new CheckoutPage(driver);
+        final int maxAttempts = 3;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                wait.until(ExpectedConditions.elementToBeClickable(checkoutButton)).click();
+                System.out.println("Proceeded to checkout");
+                return new CheckoutPage(driver);
+            } catch (TimeoutException e) {
+                System.out.println("Attempt " + attempt + "/" + maxAttempts
+                        + " timed out clicking checkout button: " + e.getMessage());
+                if (attempt == maxAttempts) {
+                    throw new RuntimeException("Failed to click checkout button after " + maxAttempts + " attempts", e);
+                }
+            }
+        }
+
+        throw new RuntimeException("Failed to click checkout button after " + maxAttempts + " attempts");
     }
 }

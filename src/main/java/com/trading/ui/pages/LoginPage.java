@@ -10,6 +10,7 @@ import java.time.Duration;
 public class LoginPage {
     private WebDriver driver;
     private WebDriverWait wait;
+    private WebDriverWait errorWait;
 
     private By usernameField = By.id("user-name");
     private By passwordField = By.id("password");
@@ -19,6 +20,7 @@ public class LoginPage {
     public LoginPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.errorWait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     public LoginPage enterUsername(String username) {
@@ -45,7 +47,7 @@ public class LoginPage {
 
     public String getErrorMessage() {
         try {
-            WebElement error = driver.findElement(errorMessage);
+            WebElement error = errorWait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage));
             return error.getText();
         } catch (Exception e) {
             return "";
@@ -54,7 +56,7 @@ public class LoginPage {
 
     public boolean isErrorDisplayed() {
         try {
-            return driver.findElement(errorMessage).isDisplayed();
+            return errorWait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).isDisplayed();
         } catch (Exception e) {
             return false;
         }

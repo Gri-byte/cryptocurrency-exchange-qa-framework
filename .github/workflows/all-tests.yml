@@ -90,8 +90,10 @@ jobs:
         DRIVER_ARGS="-Dheadless=true -Dgroups=smoke -DexcludedGroups=api"
         [ -n "$CHROME_BIN" ]       && DRIVER_ARGS="$DRIVER_ARGS -Dchrome.binary=$CHROME_BIN"
         [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARGS="$DRIVER_ARGS -Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
+        set +e
         mvn clean test --no-transfer-progress $DRIVER_ARGS
         MVN_EXIT=$?
+        set -e
         if [ $MVN_EXIT -ne 0 ]; then
           echo ""
           echo "##[error]===== TEST FAILURES ====="
@@ -200,8 +202,10 @@ jobs:
         DRIVER_ARGS="-Dheadless=true -DexcludedGroups=smoke"
         [ -n "$CHROME_BIN" ]       && DRIVER_ARGS="$DRIVER_ARGS -Dchrome.binary=$CHROME_BIN"
         [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARGS="$DRIVER_ARGS -Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
+        set +e
         mvn clean test --no-transfer-progress $DRIVER_ARGS
         MVN_EXIT=$?
+        set -e
         if [ $MVN_EXIT -ne 0 ]; then
           echo ""
           echo "##[error]===== TEST FAILURES ====="

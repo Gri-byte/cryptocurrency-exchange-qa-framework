@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 
 public class LoginTests extends BaseTest {
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void navigateToLoginPage() {
         resetToLoginPage();
         System.out.println("Setup: Navigated to login page");

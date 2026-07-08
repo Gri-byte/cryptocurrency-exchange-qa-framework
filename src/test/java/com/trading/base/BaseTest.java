@@ -22,7 +22,7 @@ public class BaseTest {
     protected static final int TIMEOUT_SECONDS = 30;
     protected static final String BROWSER = System.getProperty("browser", "chrome").toLowerCase();
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setUp() {
         initializeDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));

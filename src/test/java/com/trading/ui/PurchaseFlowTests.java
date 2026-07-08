@@ -15,7 +15,7 @@ public class PurchaseFlowTests extends BaseTest {
 
     private DashboardPage dashboardPage;
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void loginBeforeTest() {
         dashboardPage = loginWithRetry("standard_user", "secret_sauce", 3);
         System.out.println("Setup: User logged in");

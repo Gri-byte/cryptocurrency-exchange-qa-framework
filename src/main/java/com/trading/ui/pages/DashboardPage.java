@@ -93,7 +93,7 @@ public class DashboardPage {
                     WebElement addButton = product.findElement(
                             By.xpath(".//button[contains(text(), 'Add to cart')]")
                     );
-                    addButton.click();
+                    wait.until(ExpectedConditions.elementToBeClickable(addButton)).click();
                     // SauceDemo mutates the button text in-place (Add to cart → Remove) without
                     // replacing the element, so stalenessOf never fires. Poll for the Remove button.
                     By removeLocator = By.xpath(".//button[contains(text(),'Remove')]");

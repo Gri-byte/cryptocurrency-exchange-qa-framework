@@ -16,7 +16,7 @@ public class CheckoutTests extends BaseTest {
 
     private DashboardPage dashboardPage;
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void loginAndAddProductToCart() {
         dashboardPage = loginWithRetry("standard_user", "secret_sauce", 3);
         dashboardPage.addProductToCart("Sauce Labs Backpack");

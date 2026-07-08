@@ -13,7 +13,7 @@ public class BugReportingTest extends BaseTest {
 
     private BugEvidenceCapture evidenceCapture;
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void navigateToLoginPage() {
         resetToLoginPage();
         System.out.println("Setup: Navigated to login page");

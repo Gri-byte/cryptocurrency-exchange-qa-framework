@@ -12,6 +12,7 @@ import java.util.List;
 public class DashboardPage {
     private WebDriver driver;
     private WebDriverWait wait;
+    private WebDriverWait shortWait;
 
     // Selectores del Dashboard
     private By appLogo = By.className("app_logo");
@@ -25,6 +26,7 @@ public class DashboardPage {
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     /**
@@ -48,6 +50,7 @@ public class DashboardPage {
      */
     public int getProductCount() {
         try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer));
             return driver.findElements(inventoryItems).size();
         } catch (Exception e) {
             System.out.println("Error getting product count: " + e.getMessage());
@@ -60,7 +63,7 @@ public class DashboardPage {
      */
     public boolean isLogoDisplayed() {
         try {
-            WebElement logo = driver.findElement(appLogo);
+            WebElement logo = wait.until(ExpectedConditions.visibilityOfElementLocated(appLogo));
             return logo.isDisplayed();
         } catch (Exception e) {
             return false;
@@ -72,7 +75,7 @@ public class DashboardPage {
      */
     public String getLogoText() {
         try {
-            WebElement logo = driver.findElement(appLogo);
+            WebElement logo = wait.until(ExpectedConditions.visibilityOfElementLocated(appLogo));
             return logo.getText();
         } catch (Exception e) {
             return "";
@@ -131,13 +134,14 @@ public class DashboardPage {
      */
     public DashboardPage addProductToCartByIndex(int index) {
         try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer));
             List<WebElement> buttons = driver.findElements(addToCartButtons);
 
             if (index < 0 || index >= buttons.size()) {
                 throw new RuntimeException("Invalid product index: " + index);
             }
 
-            buttons.get(index).click();
+            wait.until(ExpectedConditions.elementToBeClickable(buttons.get(index))).click();
             System.out.println("Added product at index " + index + " to cart");
             return this;
 
@@ -152,7 +156,7 @@ public class DashboardPage {
      */
     public int getCartItemCount() {
         try {
-            WebElement badge = driver.findElement(cartBadge);
+            WebElement badge = shortWait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
             String countText = badge.getText();
             return Integer.parseInt(countText);
         } catch (Exception e) {
@@ -166,7 +170,7 @@ public class DashboardPage {
      */
     public boolean hasItemsInCart() {
         try {
-            driver.findElement(cartBadge);
+            shortWait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
             return true;
         } catch (Exception e) {
             return false;
@@ -178,7 +182,7 @@ public class DashboardPage {
      */
     public CartPage clickShoppingCart() {
         try {
-            driver.findElement(shoppingCart).click();
+            wait.until(ExpectedConditions.elementToBeClickable(shoppingCart)).click();
             System.out.println("Clicked shopping cart");
             return new CartPage(driver);
         } catch (Exception e) {
@@ -192,6 +196,7 @@ public class DashboardPage {
      */
     public WebElement getFirstProduct() {
         try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer));
             return driver.findElements(inventoryItems).get(0);
         } catch (Exception e) {
             System.out.println("Error getting first product: " + e.getMessage());
@@ -204,6 +209,7 @@ public class DashboardPage {
      */
     public List<String> getAllProductNames() {
         try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer));
             List<WebElement> products = driver.findElements(productNames);
             List<String> names = new java.util.ArrayList<>();
 

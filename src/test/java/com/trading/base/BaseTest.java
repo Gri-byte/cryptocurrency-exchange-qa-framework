@@ -52,20 +52,42 @@ public class BaseTest {
                 break;
             case "brave":
             default:
-                WebDriverManager.chromedriver().setup();
-                ChromeOptions options = new ChromeOptions();
-                if (chromeBinary != null && !chromeBinary.isEmpty()) {
-                    System.out.println("[BaseTest] Setting Chrome binary: " + chromeBinary);
-                    options.setBinary(chromeBinary);
-                } else if (BROWSER.equals("brave")) {
-                    String braveBinary = findBraveBinary();
-                    if (braveBinary != null) {
-                        System.out.println("[BaseTest] Setting Brave binary: " + braveBinary);
-                        options.setBinary(braveBinary);
-                    } else {
+                String resolvedBinary = (chromeBinary != null && !chromeBinary.isEmpty()) ? chromeBinary : null;
+                if (resolvedBinary == null && BROWSER.equals("brave")) {
+                    resolvedBinary = findBraveBinary();
+                    if (resolvedBinary == null) {
                         System.out.println("[BaseTest] Brave binary not found in default locations; "
                                 + "falling back to system Chrome. Pass -Dchrome.binary=<path> to point at Brave explicitly.");
                     }
+                }
+
+                // Resolve a chromedriver build whose major version matches the browser binary we are
+                // actually about to launch, rather than whatever "stable Chrome" WebDriverManager
+                // guesses at by default. ChromeDriver enforces major-version compatibility with the
+                // browser it drives, so a stale cached driver (e.g. major 151) paired with a browser
+                // that has since updated (e.g. major 152) fails session creation outright.
+                if (chromeDriver != null && !chromeDriver.isEmpty()) {
+                    System.out.println("[BaseTest] Using explicit chromedriver at " + chromeDriver
+                            + " (skipping WebDriverManager auto-resolution)");
+                } else if (resolvedBinary != null) {
+                    String majorVersion = detectBrowserMajorVersion(resolvedBinary);
+                    if (majorVersion != null) {
+                        System.out.println("[BaseTest] Detected browser major version " + majorVersion
+                                + " from " + resolvedBinary + "; resolving matching chromedriver");
+                        WebDriverManager.chromedriver().browserVersion(majorVersion).setup();
+                    } else {
+                        System.out.println("[BaseTest] Could not detect version of " + resolvedBinary
+                                + "; falling back to default chromedriver resolution");
+                        WebDriverManager.chromedriver().setup();
+                    }
+                } else {
+                    WebDriverManager.chromedriver().setup();
+                }
+
+                ChromeOptions options = new ChromeOptions();
+                if (resolvedBinary != null) {
+                    System.out.println("[BaseTest] Setting browser binary: " + resolvedBinary);
+                    options.setBinary(resolvedBinary);
                 }
                 Map<String, Object> prefs = new HashMap<>();
                 prefs.put("credentials_enable_service", false);
@@ -97,6 +119,44 @@ public class BaseTest {
             if (new java.io.File(path).exists()) {
                 return path;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Reads the browser binary's major version directly from its file metadata (via PowerShell),
+     * without launching it. Deliberately does NOT shell out to "<binary> --version": Chromium-based
+     * browsers are single-instance by default, so invoking the GUI executable while one is already
+     * running just forwards the call to the existing process (printing "Opening in existing browser
+     * session." instead of a version string), and forcing a fresh instance via a throwaway
+     * --user-data-dir risks spawning an orphaned, hard-to-clean-up browser process.
+     *
+     * Only the major version is used: a rebranded Chromium build's own product version (e.g. Brave
+     * reporting "152.1.94.117") does not correspond to any real Chrome-for-Testing release, but
+     * major-version compatibility is what ChromeDriver actually enforces at session creation.
+     */
+    private String detectBrowserMajorVersion(String binaryPath) {
+        try {
+            String escapedPath = binaryPath.replace("'", "''");
+            Process process = new ProcessBuilder(
+                    "powershell", "-NoProfile", "-NonInteractive", "-Command",
+                    "(Get-Item -LiteralPath '" + escapedPath + "').VersionInfo.ProductVersion")
+                    .redirectErrorStream(true)
+                    .start();
+            String output;
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(process.getInputStream()))) {
+                output = reader.lines().collect(java.util.stream.Collectors.joining(" "));
+            }
+            process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS);
+
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)\\.\\d+\\.\\d+\\.\\d+").matcher(output);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+            System.out.println("[BaseTest] Unrecognized version metadata for " + binaryPath + ": " + output);
+        } catch (Exception e) {
+            System.out.println("[BaseTest] Version metadata lookup failed for " + binaryPath + ": " + e.getMessage());
         }
         return null;
     }

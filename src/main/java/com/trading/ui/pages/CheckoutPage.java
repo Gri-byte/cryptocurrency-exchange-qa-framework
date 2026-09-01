@@ -16,10 +16,23 @@ public class CheckoutPage {
     private By postalCodeField = By.id("postal-code");
     private By continueButton = By.id("continue");
     private By finishButton = By.id("finish");
+    private By errorMessage = By.cssSelector("[data-test='error']");
+    private By completeHeader = By.className("complete-header");
+
+    private WebDriverWait errorWait;
 
     public CheckoutPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.errorWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+    }
+
+    public String getErrorMessage() {
+        try {
+            return errorWait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public CheckoutPage enterFirstName(String firstName) {
@@ -79,7 +92,7 @@ public class CheckoutPage {
 
     public boolean isCheckoutComplete() {
         try {
-            return driver.findElement(By.xpath("//h2[contains(text(), 'Thank you')]")).isDisplayed();
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(completeHeader)).isDisplayed();
         } catch (Exception e) {
             return false;
         }

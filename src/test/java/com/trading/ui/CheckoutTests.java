@@ -30,7 +30,7 @@ public class CheckoutTests extends BaseTest {
 
         checkoutPage.enterLastName("Doe").enterPostalCode("12345").continueCheckout();
 
-        String errorMessage = driver.findElement(By.cssSelector("[data-test='error']")).getText();
+        String errorMessage = checkoutPage.getErrorMessage();
         Assert.assertTrue(errorMessage.contains("First Name"), "Error should indicate that First Name is required");
         System.out.println("TEST PASSED: Error shown for missing first name: " + errorMessage);
     }
@@ -42,7 +42,7 @@ public class CheckoutTests extends BaseTest {
 
         checkoutPage.enterFirstName("John").enterPostalCode("12345").continueCheckout();
 
-        String errorMessage = driver.findElement(By.cssSelector("[data-test='error']")).getText();
+        String errorMessage = checkoutPage.getErrorMessage();
         Assert.assertTrue(errorMessage.contains("Last Name"), "Error should indicate that Last Name is required");
         System.out.println("TEST PASSED: Error shown for missing last name: " + errorMessage);
     }
@@ -54,7 +54,7 @@ public class CheckoutTests extends BaseTest {
 
         checkoutPage.enterFirstName("John").enterLastName("Doe").continueCheckout();
 
-        String errorMessage = driver.findElement(By.cssSelector("[data-test='error']")).getText();
+        String errorMessage = checkoutPage.getErrorMessage();
         Assert.assertTrue(errorMessage.contains("Postal Code"), "Error should indicate that Postal Code is required");
         System.out.println("TEST PASSED: Error shown for missing postal code: " + errorMessage);
     }
@@ -88,7 +88,7 @@ public class CheckoutTests extends BaseTest {
 
         checkoutPage.continueCheckout();
 
-        String errorMessage = driver.findElement(By.cssSelector("[data-test='error']")).getText();
+        String errorMessage = checkoutPage.getErrorMessage();
         Assert.assertFalse(errorMessage.isEmpty(), "Error should be shown when all checkout fields are empty");
         System.out.println("TEST PASSED: Error shown for all-empty checkout form: " + errorMessage);
     }
@@ -118,7 +118,7 @@ public class CheckoutTests extends BaseTest {
 
         checkoutPage.enterPostalCode("12345").continueCheckout();
 
-        String errorMessage = driver.findElement(By.cssSelector("[data-test='error']")).getText();
+        String errorMessage = checkoutPage.getErrorMessage();
         Assert.assertTrue(errorMessage.contains("First Name"),
                 "Error should indicate First Name is required when only postal code is provided");
         System.out.println("TEST PASSED: Error shown when only postal code is entered: " + errorMessage);

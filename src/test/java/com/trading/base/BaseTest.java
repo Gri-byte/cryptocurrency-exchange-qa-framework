@@ -20,7 +20,13 @@ public class BaseTest {
     protected WebDriverWait wait;
     protected static final String BASE_URL = "https://www.saucedemo.com";
     protected static final int TIMEOUT_SECONDS = 30;
-    protected static final String BROWSER = System.getProperty("browser", "chrome").toLowerCase();
+    protected static final String BROWSER = System.getProperty("browser", "brave").toLowerCase();
+
+    private static final String[] BRAVE_DEFAULT_PATHS = {
+            "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
+            "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
+            System.getProperty("user.home") + "\\AppData\\Local\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+    };
 
     @BeforeClass(alwaysRun = true)
     public void setUp() {
@@ -44,12 +50,22 @@ public class BaseTest {
                 WebDriverManager.firefoxdriver().setup();
                 driver = new FirefoxDriver();
                 break;
+            case "brave":
             default:
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions options = new ChromeOptions();
                 if (chromeBinary != null && !chromeBinary.isEmpty()) {
                     System.out.println("[BaseTest] Setting Chrome binary: " + chromeBinary);
                     options.setBinary(chromeBinary);
+                } else if (BROWSER.equals("brave")) {
+                    String braveBinary = findBraveBinary();
+                    if (braveBinary != null) {
+                        System.out.println("[BaseTest] Setting Brave binary: " + braveBinary);
+                        options.setBinary(braveBinary);
+                    } else {
+                        System.out.println("[BaseTest] Brave binary not found in default locations; "
+                                + "falling back to system Chrome. Pass -Dchrome.binary=<path> to point at Brave explicitly.");
+                    }
                 }
                 Map<String, Object> prefs = new HashMap<>();
                 prefs.put("credentials_enable_service", false);
@@ -74,6 +90,15 @@ public class BaseTest {
                     throw e;
                 }
         }
+    }
+
+    private String findBraveBinary() {
+        for (String path : BRAVE_DEFAULT_PATHS) {
+            if (new java.io.File(path).exists()) {
+                return path;
+            }
+        }
+        return null;
     }
 
     @AfterClass(alwaysRun = true)

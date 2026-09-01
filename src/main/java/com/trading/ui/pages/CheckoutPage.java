@@ -1,16 +1,12 @@
 package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
-public class CheckoutPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
-
+public class CheckoutPage extends BasePage {
     private By firstNameField = By.id("first-name");
     private By lastNameField = By.id("last-name");
     private By postalCodeField = By.id("postal-code");
@@ -22,8 +18,7 @@ public class CheckoutPage {
     private WebDriverWait errorWait;
 
     public CheckoutPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        super(driver);
         this.errorWait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
@@ -51,43 +46,27 @@ public class CheckoutPage {
     }
 
     public CheckoutPage continueCheckout() {
-        final int maxAttempts = 3;
-
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try {
-                wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
-                System.out.println("Continued to checkout step 2");
-                return this;
-            } catch (TimeoutException e) {
-                System.out.println("Attempt " + attempt + "/" + maxAttempts
-                        + " timed out clicking continue button: " + e.getMessage());
-                if (attempt == maxAttempts) {
-                    throw new RuntimeException("Failed to click continue button after " + maxAttempts + " attempts", e);
-                }
-            }
-        }
-
-        throw new RuntimeException("Failed to click continue button after " + maxAttempts + " attempts");
+        retry("click continue button", 3, () -> {
+            // Same React click-handler race as the checkout button: the click can register
+            // without the SPA reacting at all. A successful click either advances to step two
+            // (finish button appears) or surfaces a validation error - either counts as proof
+            // the click actually landed, so only retry when neither happens.
+            clickAndVerify(continueButton, ExpectedConditions.or(
+                    ExpectedConditions.visibilityOfElementLocated(finishButton),
+                    ExpectedConditions.visibilityOfElementLocated(errorMessage)));
+            return null;
+        });
+        System.out.println("Continued to checkout step 2");
+        return this;
     }
 
     public CheckoutPage finishCheckout() {
-        final int maxAttempts = 3;
-
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try {
-                wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
-                System.out.println("Finished checkout");
-                return this;
-            } catch (TimeoutException e) {
-                System.out.println("Attempt " + attempt + "/" + maxAttempts
-                        + " timed out clicking finish button: " + e.getMessage());
-                if (attempt == maxAttempts) {
-                    throw new RuntimeException("Failed to click finish button after " + maxAttempts + " attempts", e);
-                }
-            }
-        }
-
-        throw new RuntimeException("Failed to click finish button after " + maxAttempts + " attempts");
+        retry("click finish button", 3, () -> {
+            clickAndVerify(finishButton, ExpectedConditions.visibilityOfElementLocated(completeHeader));
+            return null;
+        });
+        System.out.println("Finished checkout");
+        return this;
     }
 
     public boolean isCheckoutComplete() {

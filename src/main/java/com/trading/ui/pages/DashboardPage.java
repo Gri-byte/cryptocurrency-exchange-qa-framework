@@ -1,9 +1,6 @@
 package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.ElementClickInterceptedException;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -11,9 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
 import java.util.List;
 
-public class DashboardPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+public class DashboardPage extends BasePage {
     private WebDriverWait shortWait;
 
     // Selectores del Dashboard
@@ -26,8 +21,7 @@ public class DashboardPage {
     private By cartBadge = By.className("shopping_cart_badge");
 
     public DashboardPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        super(driver);
         this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
@@ -88,48 +82,28 @@ public class DashboardPage {
      * Agrega un producto al carrito por nombre
      */
     public DashboardPage addProductToCart(String productName) {
-        final int maxAttempts = 3;
+        return retry("add '" + productName + "' to cart", 3, () -> {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer));
+            List<WebElement> products = driver.findElements(inventoryItems);
 
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try {
-                wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer));
-                List<WebElement> products = driver.findElements(inventoryItems);
+            for (WebElement product : products) {
+                WebElement name = product.findElement(productNames);
 
-                for (WebElement product : products) {
-                    WebElement name = product.findElement(productNames);
-
-                    if (name.getText().equals(productName)) {
-                        WebElement addButton = product.findElement(
-                                By.xpath(".//button[contains(text(), 'Add to cart')]")
-                        );
-                        wait.until(ExpectedConditions.elementToBeClickable(addButton)).click();
-                        // SauceDemo mutates the button text in-place (Add to cart → Remove) without
-                        // replacing the element, so stalenessOf never fires. Poll for the Remove button.
-                        By removeLocator = By.xpath(".//button[contains(text(),'Remove')]");
-                        wait.until(driver -> !product.findElements(removeLocator).isEmpty());
-                        System.out.println("Added to cart: " + productName);
-                        return this;
-                    }
+                if (name.getText().equals(productName)) {
+                    WebElement addButton = product.findElement(
+                            By.xpath(".//button[contains(text(), 'Add to cart')]")
+                    );
+                    // SauceDemo mutates the button text in-place (Add to cart → Remove) without
+                    // replacing the element, so stalenessOf never fires. Poll for the Remove button.
+                    By removeLocator = By.xpath(".//button[contains(text(),'Remove')]");
+                    clickAndVerify(addButton, d -> !product.findElements(removeLocator).isEmpty());
+                    System.out.println("Added to cart: " + productName);
+                    return this;
                 }
-
-                System.out.println("Product not found: " + productName);
-                throw new RuntimeException("Product not found: " + productName);
-
-            } catch (TimeoutException | StaleElementReferenceException | ElementClickInterceptedException e) {
-                System.out.println("Attempt " + attempt + "/" + maxAttempts
-                        + " failed adding '" + productName + "' to cart: "
-                        + e.getClass().getSimpleName() + ": " + e.getMessage());
-                if (attempt == maxAttempts) {
-                    throw new RuntimeException(
-                            "Failed to add '" + productName + "' to cart after " + maxAttempts + " attempts", e);
-                }
-            } catch (Exception e) {
-                System.out.println("Error adding product to cart: " + e.getMessage());
-                throw new RuntimeException(e);
             }
-        }
 
-        throw new RuntimeException("Failed to add '" + productName + "' to cart after " + maxAttempts + " attempts");
+            throw new IllegalStateException("Product not found: " + productName);
+        });
     }
 
     /**

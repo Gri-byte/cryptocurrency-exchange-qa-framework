@@ -123,6 +123,15 @@ jobs:
         path: target/surefire-reports/
         retention-days: 7
 
+    - name: Upload failure evidence (on failure)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: smoke-gate-failure-evidence
+        path: target/failure-evidence/
+        retention-days: 7
+        if-no-files-found: ignore
+
   full-suite:
     name: Full Test Suite (UI + API)
     needs: smoke-gate
@@ -246,3 +255,12 @@ jobs:
         name: full-suite-surefire-reports
         path: target/surefire-reports/
         retention-days: 7
+
+    - name: Upload failure evidence (on failure)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: full-suite-failure-evidence
+        path: target/failure-evidence/
+        retention-days: 7
+        if-no-files-found: ignore

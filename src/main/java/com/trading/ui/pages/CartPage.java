@@ -16,10 +16,14 @@ public class CartPage {
     private By cartContainer = By.className("cart_contents_container");
     private By cartItems = By.className("cart_item");
     private By checkoutButton = By.id("checkout");
+    private By firstNameField = By.id("first-name");
+
+    private WebDriverWait navigationWait;
 
     public CartPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.navigationWait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     public boolean isCartDisplayed() {
@@ -42,6 +46,10 @@ public class CartPage {
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 wait.until(ExpectedConditions.elementToBeClickable(checkoutButton)).click();
+                // The click can register without the SPA actually routing to checkout-step-one
+                // (same click-vs-React-handler race as the login button), so confirm navigation
+                // actually happened before trusting this attempt.
+                navigationWait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField));
                 System.out.println("Proceeded to checkout");
                 return new CheckoutPage(driver);
             } catch (TimeoutException | StaleElementReferenceException | ElementClickInterceptedException e) {

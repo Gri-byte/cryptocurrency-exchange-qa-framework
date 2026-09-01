@@ -22,10 +22,11 @@ public abstract class BasePage {
     protected BasePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        // Headless CI runners can be slow/overloaded enough that 5s isn't reliably long enough for
-        // a click's DOM effect to land (observed failing on the 1st click in one run, 2nd in another -
-        // not a fixed timing gap, just general runner slowness), so give it more headroom.
-        this.verifyWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        // Headless CI runners can be slow/overloaded enough that a short window isn't reliably long
+        // enough for a click's DOM effect to land (observed failing on the 1st click in one run, 2nd
+        // in another - not a fixed timing gap, just general runner slowness), so match the same
+        // 30s window used for locating elements in the first place.
+        this.verifyWait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     /**

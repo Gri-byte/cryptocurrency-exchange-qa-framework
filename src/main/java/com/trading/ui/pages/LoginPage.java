@@ -33,7 +33,14 @@ public class LoginPage extends BasePage {
     }
 
     public DashboardPage clickLoginButton() {
-        wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
+        retry("click login button", 3, () -> {
+            // A successful login navigates away (URL no longer the bare login page); a failed one
+            // surfaces an error banner without navigating - either counts as proof the click landed.
+            clickAndVerify(loginButton, ExpectedConditions.or(
+                    ExpectedConditions.urlContains("inventory"),
+                    ExpectedConditions.visibilityOfElementLocated(errorMessage)));
+            return null;
+        });
         System.out.println("Clicked login button");
         return new DashboardPage(driver);
     }

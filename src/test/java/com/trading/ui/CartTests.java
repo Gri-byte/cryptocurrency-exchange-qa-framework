@@ -32,7 +32,9 @@ public class CartTests extends BaseTest {
         dashboardPage.addProductToCart("Sauce Labs Backpack");
         Assert.assertEquals(dashboardPage.getCartItemCount(), 1, "Cart should have 1 item after adding");
 
-        driver.findElement(By.xpath("//button[contains(text(), 'Remove')]")).click();
+        clickAndVerify(By.xpath("//button[contains(text(), 'Remove')]"),
+                org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated(
+                        By.className("shopping_cart_badge")));
 
         Assert.assertFalse(dashboardPage.hasItemsInCart(), "Cart should be empty after removing the item");
         System.out.println("TEST PASSED: Item removed from cart via dashboard Remove button");
@@ -55,7 +57,8 @@ public class CartTests extends BaseTest {
         Assert.assertEquals(dashboardPage.getCartItemCount(), 2, "Cart should have 2 items before removal");
 
         CartPage cartPage = dashboardPage.clickShoppingCart();
-        driver.findElement(By.xpath("//button[contains(text(), 'Remove')]")).click();
+        clickAndVerify(By.xpath("//button[contains(text(), 'Remove')]"),
+                d -> d.findElements(By.className("cart_item")).size() == 1);
 
         Assert.assertEquals(cartPage.getCartItemCount(), 1, "Cart should have 1 item after removing one");
         System.out.println("TEST PASSED: Cart count decreased to 1 after removing an item");
@@ -66,7 +69,9 @@ public class CartTests extends BaseTest {
         dashboardPage.addProductToCart("Sauce Labs Backpack");
         dashboardPage.clickShoppingCart();
 
-        driver.findElement(By.id("continue-shopping")).click();
+        clickAndVerify(By.id("continue-shopping"),
+                org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated(
+                        By.id("inventory_container")));
 
         Assert.assertTrue(dashboardPage.isDashboardDisplayed(), "Dashboard should be displayed after clicking Continue Shopping");
         System.out.println("TEST PASSED: Continue Shopping button returns to dashboard");
@@ -109,11 +114,9 @@ public class CartTests extends BaseTest {
         dashboardPage.addProductToCart("Sauce Labs Backpack");
         Assert.assertTrue(dashboardPage.hasItemsInCart(), "Cart should show badge after adding item");
 
-        driver.findElement(org.openqa.selenium.By.xpath("//button[contains(text(), 'Remove')]")).click();
-
-        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated(
-                        org.openqa.selenium.By.className("shopping_cart_badge")));
+        clickAndVerify(By.xpath("//button[contains(text(), 'Remove')]"),
+                org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated(
+                        By.className("shopping_cart_badge")));
 
         Assert.assertFalse(dashboardPage.hasItemsInCart(),
                 "Cart badge should disappear after all items are removed");

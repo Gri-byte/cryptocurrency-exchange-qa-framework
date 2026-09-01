@@ -3,11 +3,19 @@ package com.trading.base;
 import com.trading.ui.pages.DashboardPage;
 import com.trading.ui.pages.LoginPage;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
@@ -209,6 +217,45 @@ public class BaseTest {
             }
         }
         throw new RuntimeException("Dashboard not displayed after " + maxAttempts + " login attempts. URL: " + driver.getCurrentUrl());
+    }
+
+    /**
+     * Clicks the element at locator, then confirms the click actually took effect via
+     * verification - falling back to a JavaScript-executed click, then retrying the whole click up
+     * to 3 times, if it doesn't. Mirrors BasePage.clickAndVerify for the handful of test methods
+     * that interact with the page directly (dismiss/cancel buttons) rather than through a page
+     * object: the same native-click-dispatch unreliability observed on CI's headless browser (a
+     * click reports success but never dispatches) affects these clicks too.
+     */
+    protected void clickAndVerify(By locator, ExpectedCondition<?> verification) {
+        WebDriverWait nativeClickWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait verifyWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        RuntimeException lastFailure = null;
+
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+                element.click();
+
+                try {
+                    nativeClickWait.until(verification);
+                    return;
+                } catch (TimeoutException e) {
+                    System.out.println("Native click produced no DOM effect; retrying via JavaScript click");
+                }
+
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+                verifyWait.until(verification);
+                return;
+            } catch (TimeoutException | StaleElementReferenceException
+                     | ElementClickInterceptedException | NoSuchElementException e) {
+                System.out.println("Attempt " + attempt + "/3 failed clicking element at " + locator
+                        + ": " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                lastFailure = new RuntimeException("Failed to click element at " + locator + " after 3 attempts", e);
+            }
+        }
+
+        throw lastFailure;
     }
 
     protected void navigateTo(String url) {

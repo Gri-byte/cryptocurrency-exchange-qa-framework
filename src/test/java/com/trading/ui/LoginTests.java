@@ -119,7 +119,9 @@ public class LoginTests extends BaseTest {
 
         Assert.assertTrue(loginPage.isErrorDisplayed(), "Error message should appear after failed login");
 
-        driver.findElement(org.openqa.selenium.By.cssSelector("[data-test='error'] button")).click();
+        clickAndVerify(org.openqa.selenium.By.cssSelector("[data-test='error'] button"),
+                org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated(
+                        org.openqa.selenium.By.cssSelector("[data-test='error']")));
 
         Assert.assertFalse(loginPage.isErrorDisplayed(), "Error message should be dismissed after clicking X");
 
@@ -276,7 +278,9 @@ public class LoginTests extends BaseTest {
             Assert.assertTrue(loginPage.isErrorDisplayed(),
                     "Error should be displayed on attempt " + i);
 
-            driver.findElement(org.openqa.selenium.By.cssSelector("[data-test='error'] button")).click();
+            clickAndVerify(org.openqa.selenium.By.cssSelector("[data-test='error'] button"),
+                org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated(
+                        org.openqa.selenium.By.cssSelector("[data-test='error']")));
 
             Assert.assertFalse(loginPage.isErrorDisplayed(),
                     "Error should be dismissed between attempts");

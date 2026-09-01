@@ -75,7 +75,9 @@ public class CheckoutTests extends BaseTest {
         CartPage cartPage = dashboardPage.clickShoppingCart();
         cartPage.proceedToCheckout();
 
-        driver.findElement(By.id("cancel")).click();
+        clickAndVerify(By.id("cancel"),
+                org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated(
+                        By.className("cart_contents_container")));
 
         Assert.assertTrue(new CartPage(driver).isCartDisplayed(), "Cart page should be displayed after cancelling checkout");
         System.out.println("TEST PASSED: Cancel checkout returns to cart page");
@@ -99,11 +101,8 @@ public class CheckoutTests extends BaseTest {
         CheckoutPage checkoutPage = cartPage.proceedToCheckout();
         checkoutPage.enterFirstName("John").enterLastName("Doe").enterPostalCode("12345").continueCheckout();
 
-        driver.findElement(By.id("cancel")).click();
-
-        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.not(
-                        org.openqa.selenium.support.ui.ExpectedConditions.urlContains("checkout-step-two")));
+        clickAndVerify(By.id("cancel"),
+                org.openqa.selenium.support.ui.ExpectedConditions.urlContains("inventory"));
 
         String url = driver.getCurrentUrl();
         Assert.assertFalse(url.contains("checkout"),

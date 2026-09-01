@@ -60,6 +60,42 @@ public abstract class BasePage {
     }
 
     /**
+     * Types text into the element at locator, then confirms the field actually holds it -
+     * falling back to a React-compatible JavaScript value set if sendKeys() dropped the input.
+     * Screenshot evidence from CI showed sendKeys() silently truncating input (a field ending up
+     * with only the first few characters typed), the same native-input-dispatch unreliability
+     * that affects clicks on this CI browser build.
+     */
+    protected void typeAndVerify(By locator, String text) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        typeAndVerify(element, text);
+    }
+
+    protected void typeAndVerify(WebElement element, String text) {
+        settleAfterRender();
+        element.clear();
+        element.sendKeys(text);
+
+        if (text.equals(element.getAttribute("value"))) {
+            return;
+        }
+
+        System.out.println("Native sendKeys produced incomplete input (\"" + element.getAttribute("value")
+                + "\" != \"" + text + "\"); retrying via JavaScript value set");
+
+        // Setting element.value directly via JS doesn't trigger React's onChange (React tracks its
+        // own value setter separately from the native one), so go through the native setter and
+        // dispatch a real input event, which is what React's synthetic event system listens for.
+        String script =
+                "var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
+                        + "setter.call(arguments[0], arguments[1]);"
+                        + "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));";
+        ((JavascriptExecutor) driver).executeScript(script, element, text);
+
+        verifyWait.until(d -> text.equals(element.getAttribute("value")));
+    }
+
+    /**
      * Short pause before firing a click. On the slower headless-CI runner, an element can satisfy
      * elementToBeClickable (visible + enabled) before React has finished re-attaching its click
      * handler following the previous DOM update, so the click lands on an unwired element and does

@@ -31,17 +31,17 @@ public class CheckoutPage extends BasePage {
     }
 
     public CheckoutPage enterFirstName(String firstName) {
-        wait.until(ExpectedConditions.elementToBeClickable(firstNameField)).sendKeys(firstName);
+        typeAndVerify(firstNameField, firstName);
         return this;
     }
 
     public CheckoutPage enterLastName(String lastName) {
-        wait.until(ExpectedConditions.elementToBeClickable(lastNameField)).sendKeys(lastName);
+        typeAndVerify(lastNameField, lastName);
         return this;
     }
 
     public CheckoutPage enterPostalCode(String postalCode) {
-        wait.until(ExpectedConditions.elementToBeClickable(postalCodeField)).sendKeys(postalCode);
+        typeAndVerify(postalCodeField, postalCode);
         return this;
     }
 

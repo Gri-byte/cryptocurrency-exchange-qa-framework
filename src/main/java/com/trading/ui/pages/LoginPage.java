@@ -1,15 +1,13 @@
 package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
 
-public class LoginPage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+public class LoginPage extends BasePage {
     private WebDriverWait errorWait;
 
     private By usernameField = By.id("user-name");
@@ -18,23 +16,18 @@ public class LoginPage {
     private By errorMessage = By.cssSelector("[data-test='error']");
 
     public LoginPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        super(driver);
         this.errorWait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     public LoginPage enterUsername(String username) {
-        WebElement field = wait.until(ExpectedConditions.elementToBeClickable(usernameField));
-        field.clear();
-        field.sendKeys(username);
+        typeAndVerify(usernameField, username);
         System.out.println("Entered username: " + username);
         return this;
     }
 
     public LoginPage enterPassword(String password) {
-        WebElement field = wait.until(ExpectedConditions.elementToBeClickable(passwordField));
-        field.clear();
-        field.sendKeys(password);
+        typeAndVerify(passwordField, password);
         System.out.println("Entered password");
         return this;
     }

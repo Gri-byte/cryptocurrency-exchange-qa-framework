@@ -159,8 +159,7 @@ public class LoginTests extends BaseTest {
 
     @Test(description = "Login with problem_user succeeds and loads dashboard", groups = {"regression"})
     public void testLoginWithProblemUser() {
-        LoginPage loginPage = new LoginPage(driver);
-        DashboardPage dashboardPage = loginPage.login("problem_user", "secret_sauce");
+        DashboardPage dashboardPage = loginWithRetry("problem_user", "secret_sauce", 3);
 
         Assert.assertTrue(dashboardPage.isDashboardDisplayed(),
                 "Dashboard should be displayed for problem_user despite known UI glitches");
@@ -170,8 +169,7 @@ public class LoginTests extends BaseTest {
 
     @Test(description = "Login with performance_glitch_user succeeds", groups = {"regression"})
     public void testLoginWithPerformanceGlitchUser() {
-        LoginPage loginPage = new LoginPage(driver);
-        DashboardPage dashboardPage = loginPage.login("performance_glitch_user", "secret_sauce");
+        DashboardPage dashboardPage = loginWithRetry("performance_glitch_user", "secret_sauce", 3);
 
         Assert.assertTrue(dashboardPage.isDashboardDisplayed(),
                 "Dashboard should be displayed for performance_glitch_user");

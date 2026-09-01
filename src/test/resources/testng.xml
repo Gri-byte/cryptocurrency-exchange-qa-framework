@@ -4,7 +4,6 @@
 
     <listeners>
         <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
-        <listener class-name="com.trading.base.ScreenshotOnFailureListener"/>
     </listeners>
 
     <test name="UI Tests" enabled="true">

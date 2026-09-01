@@ -2,6 +2,7 @@ package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
@@ -18,32 +19,43 @@ public abstract class BasePage {
     protected final WebDriver driver;
     protected final WebDriverWait wait;
     protected final WebDriverWait verifyWait;
+    private final WebDriverWait nativeClickWait;
 
     protected BasePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        // Headless CI runners can be slow/overloaded enough that a short window isn't reliably long
-        // enough for a click's DOM effect to land (observed failing on the 1st click in one run, 2nd
-        // in another - not a fixed timing gap, just general runner slowness), so match the same
-        // 30s window used for locating elements in the first place.
-        this.verifyWait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.verifyWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        // Screenshot evidence on CI showed the native click reporting success (no exception) while
+        // producing zero DOM effect even after 90s of retrying - not a slow render, a click that
+        // never dispatched at all. So don't wait long for it: if it hasn't landed quickly, fall back
+        // to a JS-executed click (calls the DOM's click() directly, bypassing whatever native input
+        // dispatch is failing) rather than burning the retry budget waiting on the same broken click.
+        this.nativeClickWait = new WebDriverWait(driver, Duration.ofSeconds(5));
     }
 
     /**
      * Clicks the element at clickLocator, then confirms the click actually took effect via
-     * verification. In headless CI this app's React click handlers occasionally drop a click's
-     * effect (the click registers with no exception, but the resulting DOM update - a button label
-     * flip, an SPA route change - never happens), so a bare click() is never trusted on its own.
+     * verification, falling back to a JavaScript-executed click if the native click produced no
+     * effect.
      */
     protected void clickAndVerify(By clickLocator, ExpectedCondition<?> verification) {
-        settleAfterRender();
-        wait.until(ExpectedConditions.elementToBeClickable(clickLocator)).click();
-        verifyWait.until(verification);
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(clickLocator));
+        clickAndVerify(element, verification);
     }
 
     protected void clickAndVerify(WebElement element, ExpectedCondition<?> verification) {
         settleAfterRender();
-        wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        element.click();
+
+        try {
+            nativeClickWait.until(verification);
+            return;
+        } catch (TimeoutException e) {
+            System.out.println("Native click produced no DOM effect; retrying via JavaScript click");
+        }
+
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         verifyWait.until(verification);
     }
 

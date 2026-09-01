@@ -1,10 +1,10 @@
-name: All Tests
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
@@ -85,7 +85,7 @@ jobs:
         echo "ChromeDriver: ${CHROMEDRIVER:-not found}"
         [ -n "$CHROMEDRIVER" ] && "$CHROMEDRIVER" --version || true
 
-    - name: Run smoke tests (fast gate)
+    - name: Run smoke tests (fast UI gate)
       run: |
         DRIVER_ARGS="-Dheadless=true -Dgroups=smoke -DexcludedGroups=api"
         [ -n "$CHROME_BIN" ]       && DRIVER_ARGS="$DRIVER_ARGS -Dchrome.binary=$CHROME_BIN"
@@ -124,7 +124,7 @@ jobs:
         retention-days: 7
 
   full-suite:
-    name: Full Test Suite
+    name: Full Test Suite (UI + API)
     needs: smoke-gate
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -197,9 +197,9 @@ jobs:
         echo "ChromeDriver: ${CHROMEDRIVER:-not found}"
         [ -n "$CHROMEDRIVER" ] && "$CHROMEDRIVER" --version || true
 
-    - name: Run full test suite (excluding smoke — already passed)
+    - name: Run full test suite (UI + API, per testng.xml)
       run: |
-        DRIVER_ARGS="-Dheadless=true -DexcludedGroups=smoke"
+        DRIVER_ARGS="-Dheadless=true"
         [ -n "$CHROME_BIN" ]       && DRIVER_ARGS="$DRIVER_ARGS -Dchrome.binary=$CHROME_BIN"
         [ -n "$CHROMEDRIVER_BIN" ] && DRIVER_ARGS="$DRIVER_ARGS -Dwebdriver.chrome.driver=$CHROMEDRIVER_BIN"
         set +e

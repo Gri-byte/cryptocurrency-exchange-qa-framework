@@ -19,9 +19,8 @@ public class LoginTests extends BaseTest {
     @Test(description = "Successful login with valid credentials", groups = {"smoke"})
     public void testLoginWithValidCredentials() {
         User user = new User("standard_user", "secret_sauce");
-        LoginPage loginPage = new LoginPage(driver);
 
-        DashboardPage dashboardPage = loginPage.login(user.getUsername(), user.getPassword());
+        DashboardPage dashboardPage = loginWithRetry(user.getUsername(), user.getPassword(), 3);
 
         Assert.assertTrue(dashboardPage.isDashboardDisplayed(),
                 "Dashboard should be displayed after successful login");

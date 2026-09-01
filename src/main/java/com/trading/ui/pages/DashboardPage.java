@@ -1,6 +1,8 @@
 package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -113,9 +115,10 @@ public class DashboardPage {
                 System.out.println("Product not found: " + productName);
                 throw new RuntimeException("Product not found: " + productName);
 
-            } catch (TimeoutException e) {
+            } catch (TimeoutException | StaleElementReferenceException | ElementClickInterceptedException e) {
                 System.out.println("Attempt " + attempt + "/" + maxAttempts
-                        + " timed out adding '" + productName + "' to cart: " + e.getMessage());
+                        + " failed adding '" + productName + "' to cart: "
+                        + e.getClass().getSimpleName() + ": " + e.getMessage());
                 if (attempt == maxAttempts) {
                     throw new RuntimeException(
                             "Failed to add '" + productName + "' to cart after " + maxAttempts + " attempts", e);

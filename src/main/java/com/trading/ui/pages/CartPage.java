@@ -1,6 +1,8 @@
 package com.trading.ui.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -42,9 +44,10 @@ public class CartPage {
                 wait.until(ExpectedConditions.elementToBeClickable(checkoutButton)).click();
                 System.out.println("Proceeded to checkout");
                 return new CheckoutPage(driver);
-            } catch (TimeoutException e) {
+            } catch (TimeoutException | StaleElementReferenceException | ElementClickInterceptedException e) {
                 System.out.println("Attempt " + attempt + "/" + maxAttempts
-                        + " timed out clicking checkout button: " + e.getMessage());
+                        + " failed clicking checkout button: "
+                        + e.getClass().getSimpleName() + ": " + e.getMessage());
                 if (attempt == maxAttempts) {
                     throw new RuntimeException("Failed to click checkout button after " + maxAttempts + " attempts", e);
                 }

@@ -32,13 +32,30 @@ public abstract class BasePage {
      * flip, an SPA route change - never happens), so a bare click() is never trusted on its own.
      */
     protected void clickAndVerify(By clickLocator, ExpectedCondition<?> verification) {
+        settleAfterRender();
         wait.until(ExpectedConditions.elementToBeClickable(clickLocator)).click();
         verifyWait.until(verification);
     }
 
     protected void clickAndVerify(WebElement element, ExpectedCondition<?> verification) {
+        settleAfterRender();
         wait.until(ExpectedConditions.elementToBeClickable(element)).click();
         verifyWait.until(verification);
+    }
+
+    /**
+     * Short pause before firing a click. On the slower headless-CI runner, an element can satisfy
+     * elementToBeClickable (visible + enabled) before React has finished re-attaching its click
+     * handler following the previous DOM update, so the click lands on an unwired element and does
+     * nothing. This consistently reproduces on the second consecutive UI action in a test (never
+     * the first), so give React's re-render/hydration cycle a moment to catch up before clicking.
+     */
+    private void settleAfterRender() {
+        try {
+            Thread.sleep(400);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

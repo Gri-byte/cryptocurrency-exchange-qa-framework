@@ -95,7 +95,13 @@ public class BaseTest {
                 options.setExperimentalOption("prefs", prefs);
                 options.addArguments("--disable-features=PasswordManagerEnabled");
                 if (headless) {
-                    options.addArguments("--headless=new");
+                    // Legacy headless, not --headless=new: CI's clicks on saucedemo.com (pure
+                    // client-side React state, no network call) were consistently landing on an
+                    // unresponsive element - reproduced neither locally nor via manual browser
+                    // automation against the same site, only on CI's headless Chromium. --headless=new
+                    // has had event-dispatch quirks in some Chromium releases that legacy headless
+                    // doesn't share, so try it as the isolated variable.
+                    options.addArguments("--headless");
                     options.addArguments("--no-sandbox");
                     options.addArguments("--disable-dev-shm-usage");
                     options.addArguments("--disable-gpu");

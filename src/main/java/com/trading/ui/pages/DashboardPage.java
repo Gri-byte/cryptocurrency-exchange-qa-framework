@@ -19,6 +19,7 @@ public class DashboardPage extends BasePage {
     private By productNames = By.className("inventory_item_name");
     private By addToCartButtons = By.xpath("//button[contains(text(), 'Add to cart')]");
     private By cartBadge = By.className("shopping_cart_badge");
+    private By cartContentsContainer = By.className("cart_contents_container");
 
     public DashboardPage(WebDriver driver) {
         super(driver);
@@ -158,14 +159,12 @@ public class DashboardPage extends BasePage {
      * Click en el carrito de compras
      */
     public CartPage clickShoppingCart() {
-        try {
-            wait.until(ExpectedConditions.elementToBeClickable(shoppingCart)).click();
-            System.out.println("Clicked shopping cart");
-            return new CartPage(driver);
-        } catch (Exception e) {
-            System.out.println("Error clicking shopping cart: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
+        retry("click shopping cart", 3, () -> {
+            clickAndVerify(shoppingCart, ExpectedConditions.visibilityOfElementLocated(cartContentsContainer));
+            return null;
+        });
+        System.out.println("Clicked shopping cart");
+        return new CartPage(driver);
     }
 
     /**

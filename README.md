@@ -17,12 +17,12 @@ Professional test automation framework for cryptocurrency trading platform with 
 
 Technology    | Version | Purpose
 --------------|---------|----------
-Java          | 11+     | Main language
-Selenium      | 4.15.0  | UI automation
-TestNG        | 7.8.1   | Test framework
+Java          | 17+     | Main language
+Selenium      | 4.45.0  | UI automation
+TestNG        | 7.7.1   | Test framework
 REST Assured  | 5.3.2   | API testing
 Maven         | 3.8+    | Build management
-WebDriverMgr  | 5.6.3   | Driver management
+WebDriverMgr  | 6.3.4   | Driver management
 
 ## Project Structure
 
@@ -63,7 +63,7 @@ cryptocurrency-exchange-qa-framework/
 
 ### Prerequisites
 
-- Java JDK 11+ (https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+- Java JDK 17+ (https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 - Maven 3.8+ (https://maven.apache.org/download.cgi)
 - Git (https://git-scm.com/downloads)
 - Chrome or Firefox browser
